@@ -1,4 +1,4 @@
-class Greatest{
+class Factorial{
 	public static void main(String arg[])
 	{
 		int n = 5;
