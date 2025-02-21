@@ -14,7 +14,8 @@ class Student {
         System.out.println("Roll No. : " + rollNo);
     }
 
-    public void setStd(Scanner scan) {  // Accept Scanner as parameter
+    public void setStd() {
+        Scanner scan = new Scanner(System.in);
         System.out.print("Enter name of student: ");
         name = scan.nextLine();
         System.out.print("Enter roll no. of student: ");
@@ -26,6 +27,11 @@ class Chair {
     private boolean status;
     private Student studentObj;
 
+    public Chair() {
+        status = false; // Initially unoccupied
+        studentObj = null;
+    }
+
     public Chair(boolean s, Student obj) {
         status = s;
         studentObj = obj;
@@ -35,10 +41,15 @@ class Chair {
         return status;
     }
 
+    public void SetStatus(boolean s, Student obj) {
+        status = s;
+        studentObj = obj;
+    }
+
     public void DisplayChair() {
         String a = (status) ? "Occupied" : "Unoccupied";
         System.out.println("Status   : " + a);
-        if (status) {
+        if (status && studentObj != null) {
             System.out.println("Student Details:");
             studentObj.DisplayStd();
         }
@@ -47,38 +58,16 @@ class Chair {
 
 class Lab {
     public static void main(String args[]) {
-        Scanner scan = new Scanner(System.in);
-
-        Chair[] chairs = new Chair[5];
-
+        Chair[] chairs = new Chair[5]; // Initialize an array of 5 chairs
         for (int i = 0; i < 5; i++) {
-            System.out.println("Enter details for Student " + (i + 1));
-            Student temp = new Student("", "");  // Create a temporary student
-            temp.setStd(scan);  // Pass Scanner instance
-            chairs[i] = new Chair(true, temp); // Assign student to a chair
-        }
-
-        while (true) {
-            System.out.print("Enter chair number (0-4) to view details or -1 to exit: ");
-            int i = scan.nextInt();
-            scan.nextLine();  // Consume newline
-
-            if (i == -1) break;
-
-            if (i >= 0 && i < 5) {
-                chairs[i].DisplayChair();
-            } else {
-                System.out.println("Invalid chair number. Try again.");
-            }
-
-            System.out.print("Do you want to continue? (y/n): ");
-            String choice = scan.nextLine();
-            if (choice.equalsIgnoreCase("n")) break;
+            chairs[i] = new Chair(); // Initialize each Chair object
         }
 
         byte option;
+        Scanner scan = new Scanner(System.in);
+
         do {
-            System.out.println("\n\n--------------- Menu ---------------");
+            System.out.println("\n\n---------------Menu---------------\n");
             System.out.println("1. Insert");
             System.out.println("2. Delete");
             System.out.println("3. Search");
@@ -86,34 +75,83 @@ class Lab {
             System.out.println("5. Display");
             System.out.println("6. Exit");
 
-            System.out.print("Enter your choice: ");
+            System.out.print("Enter your choice : ");
             option = scan.nextByte();
-            scan.nextLine();  // Consume newline
+            scan.nextLine(); // Consume the newline character
 
             switch (option) {
                 case 1:
-                    System.out.println("Insert option selected");
+                    System.out.print("Enter chair number (0-4): ");
+                    int insertIndex = scan.nextInt();
+                    scan.nextLine(); 
+
+                    if (insertIndex >= 0 && insertIndex < chairs.length) {
+                        Student temp = new Student("", "");
+                        temp.setStd();
+                        chairs[insertIndex].SetStatus(true, temp);
+                        System.out.println("Student inserted into chair " + insertIndex);
+                    } else {
+                        System.out.println("Invalid chair number!");
+                    }
                     break;
+
                 case 2:
-                    System.out.println("Delete option selected");
+                    System.out.print("Enter chair number to delete (0-4): ");
+                    int deleteIndex = scan.nextInt();
+                    scan.nextLine(); // Consume newline
+
+                    if (deleteIndex >= 0 && deleteIndex < chairs.length && chairs[deleteIndex].checkStatus()) {
+                        chairs[deleteIndex].SetStatus(false, null);
+                        System.out.println("Chair " + deleteIndex + " is now unoccupied.");
+                    } else {
+                        System.out.println("Invalid chair number or chair already unoccupied.");
+                    }
                     break;
+
                 case 3:
-                    System.out.println("Search option selected");
+                    System.out.print("Enter chair number to search (0-4): ");
+                    int searchIndex = scan.nextInt();
+                    scan.nextLine(); // Consume newline
+
+                    if (searchIndex >= 0 && searchIndex < chairs.length) {
+                        chairs[searchIndex].DisplayChair();
+                    } else {
+                        System.out.println("Invalid chair number!");
+                    }
                     break;
+
                 case 4:
-                    System.out.println("Update option selected");
+                    System.out.print("Enter chair number to update (0-4): ");
+                    int updateIndex = scan.nextInt();
+                    scan.nextLine(); // Consume newline
+
+                    if (updateIndex >= 0 && updateIndex < chairs.length && chairs[updateIndex].checkStatus()) {
+                        System.out.println("Update student details for chair " + updateIndex);
+                        Student updatedStudent = new Student("", "");
+                        updatedStudent.setStd();
+                        chairs[updateIndex].SetStatus(true, updatedStudent);
+                    } else {
+                        System.out.println("Invalid chair number or chair unoccupied.");
+                    }
                     break;
+
                 case 5:
-                    System.out.println("Display option selected");
+                    System.out.println("\nDisplaying all chairs:");
+                    for (int i = 0; i < chairs.length; i++) {
+                        System.out.println("\nChair " + i + ":");
+                        chairs[i].DisplayChair();
+                    }
                     break;
+
                 case 6:
                     System.out.println("Exiting program...");
                     break;
+
                 default:
-                    System.out.println("Invalid choice! Please select a valid option.");
+                    System.out.println("Invalid option! Please choose between 1 and 6.");
             }
         } while (option != 6);
 
-        scan.close();  // Close Scanner at the end
+        scan.close();
     }
 }
